@@ -55,7 +55,7 @@ namespace gazebo
 
       _link_name = _sdf->Get<string>("link_name");
       _ft_topic_name = _sdf->Get<string>("topic_name");
-      _ft_sub = _node_handle->subscribe(_ft_topic_name, 0, &ModelPush::FTs_cb, this );
+      _ft_sub = _node_handle->subscribe(_ft_topic_name, 1, &ModelPush::FTs_cb, this );
 
 
     }
@@ -67,6 +67,9 @@ namespace gazebo
       // Apply a small linear velocity to the model.
       if (currTime>=3) {
         _humm_base_link = model->GetLink( _link_name );
+
+        cout << "Publishing on: " << _ft_topic_name << endl;
+        cout << "Wrench: " << _wrench << endl;
         _humm_base_link->AddRelativeForce(ignition::math::Vector3d( _wrench.force.x, _wrench.force.y, _wrench.force.z ));
         _humm_base_link->AddRelativeTorque(ignition::math::Vector3d( _wrench.torque.x, _wrench.torque.y, _wrench.torque.z ));
       }	
