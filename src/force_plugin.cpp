@@ -24,6 +24,7 @@ namespace gazebo
     private: physics::LinkPtr  _humm_base_link;
     private: geometry_msgs::Wrench _wrench;
     private: string _link_name;
+    private: string _ft_topic_name;
 
     public: void FTs_cb( geometry_msgs::Wrench w ) {
       _wrench = w;
@@ -50,10 +51,13 @@ namespace gazebo
       _wrench.torque.y = 0.0;
       _wrench.torque.z = 0.0;
 
-      _ft_sub = _node_handle->subscribe("/hummingbird/ft", 0, &ModelPush::FTs_cb, this );
 
 
       _link_name = _sdf->Get<string>("link_name");
+      _ft_topic_name = _sdf->Get<string>("topic_name");
+      _ft_sub = _node_handle->subscribe(_ft_topic_name, 0, &ModelPush::FTs_cb, this );
+
+
     }
 
     // Called by the world update start event
@@ -62,9 +66,8 @@ namespace gazebo
       common::Time currTime = this->model->GetWorld()->SimTime();
       // Apply a small linear velocity to the model.
       if (currTime>=3) {
-        //_humm_base_link = model->GetLink("hummingbird/base_link");
         _humm_base_link = model->GetLink( _link_name );
-        _humm_base_link->AddLinkForce(ignition::math::Vector3d( _wrench.force.x, _wrench.force.y, _wrench.force.z ));
+        _humm_base_link->AddRelativeForce(ignition::math::Vector3d( _wrench.force.x, _wrench.force.y, _wrench.force.z ));
         _humm_base_link->AddRelativeTorque(ignition::math::Vector3d( _wrench.torque.x, _wrench.torque.y, _wrench.torque.z ));
       }	
 
